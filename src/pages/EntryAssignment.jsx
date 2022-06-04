@@ -5,7 +5,22 @@ import { BlockchainContext } from "../contexts/BlockchainContext";
 
 // 請至 Rinkeby Etherscan 找到合約 ABI
 const contractAddress = "0xa680F60AD58000F87Cdf9EA94A5c68ac8583c6EB";
-const contractABI = [];
+const contractABI = [
+  {
+    inputs: [],
+    name: "counter",
+    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "setIncrement",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
 
 const EntryAssignment = () => {
   const { currentAccount, provider } = useContext(BlockchainContext);
@@ -19,7 +34,32 @@ const EntryAssignment = () => {
      * 2. 取得目前 block (區塊) 中的 gas fee，並在建立 Contract 物件的時候帶入 gasLimit 參數
      * 參考資料: https://docs.ethers.io/v5/getting-started/#getting-started--contracts
      */
-  }, []);
+
+
+    if (provider) {
+      // console.log(provider)
+      const signer = provider.getSigner();
+
+      const _contract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        provider,
+      );
+      setContract(_contract.connect(signer));
+
+      // provider.getBlock().then((block) => {
+      //   const _contract = new ethers.Contract(
+      //     contractAddress,
+      //     contractABI,
+      //     provider,
+      //     // {
+      //     //   gasLimit: block.gasLimit,
+      //     // }
+      //   );
+      //   setContract(_contract.connect(signer));
+      // });
+    }
+  }, [provider]);
 
   const [counter, setCounter] = useState();
   useEffect(() => {
@@ -30,14 +70,26 @@ const EntryAssignment = () => {
      * 如果寫成功，則 <div>counter: {counter}</div> 處就會顯示 counter 的數值
      * 提示: 透過 ethers.js 取得的 counter 數值為 bigNumber，請想辦法轉換成數字或是字串
      */
-  }, []);
 
-  const onIncrement = () => {
+    const getCounter = async () => {
+      const _counter = await contract.counter();
+      setCounter(_counter.toNumber());
+    };
+
+    if (contract) {
+      getCounter();
+    }
+  }, [contract]);
+
+  const onIncrement = async () => {
     /*
      * 請在此處透過 contract 物件，向智能合約呼叫 setIncrement 方法
      * 並且將目前錢包地址帶入 from 參數
      * 如果寫成功，則點擊 counter + 1 按鈕時，狐狸錢包會跳出交易資訊
      */
+    if (contract) {
+      await contract.setIncrement({ from: currentAccount });
+    }
   };
 
   useEffect(() => {
@@ -49,13 +101,26 @@ const EntryAssignment = () => {
      * 注意: 由於開發時頁面會重新刷新，會導致 setInterval 無法清除，因此請透過 useEffect 中的 return 清除 setInterval
      * 參考資料: https://developer.mozilla.org/zh-TW/docs/Web/API/setInterval
      */
-  }, []);
+    let interval;
+    if (contract) {
+      interval = window.setInterval(async () => {
+        const _counter = await contract.counter();
+        console.log(_counter);
+        setCounter(_counter.toNumber());
+      }, 1000);
+    }
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [contract]);
 
   return (
     <Layout>
       <h1>基礎作業: Counter</h1>
 
       <div>
+        <div>自定義的 key: { }</div>
         <div>錢包地址：{currentAccount}</div>
         <div>鏈上資料:</div>
         <div className="my-3">

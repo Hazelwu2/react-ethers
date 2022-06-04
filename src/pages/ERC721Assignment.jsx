@@ -1,11 +1,11 @@
 import { useContext, useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { ethers, utils } from "ethers";
 import Layout from "../components/Layout";
 import { BlockchainContext } from "../contexts/BlockchainContext";
 
 // 請至 Rinkeby Etherscan 找到合約 ABI
 const contractAddress = "0x388256be6bdce27de101d592859a7205e58d0074";
-const contractABI = [];
+const contractABI = [{ "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "approved", "type": "address" }, { "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "operator", "type": "address" }, { "indexed": false, "internalType": "bool", "name": "approved", "type": "bool" }], "name": "ApprovalForAll", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "previousOwner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "newOwner", "type": "address" }], "name": "OwnershipTransferred", "type": "event" }, { "anonymous": false, "inputs": [{ "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": true, "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "name": "Transfer", "type": "event" }, { "inputs": [{ "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "name": "approve", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }], "name": "balanceOf", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "name": "getApproved", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "operator", "type": "address" }], "name": "isApprovedForAll", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "mint", "outputs": [], "stateMutability": "payable", "type": "function" }, { "inputs": [], "name": "mintPrice", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "name", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "owner", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "name": "ownerOf", "outputs": [{ "internalType": "address", "name": "", "type": "address" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "renounceOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "name": "safeTransferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "tokenId", "type": "uint256" }, { "internalType": "bytes", "name": "_data", "type": "bytes" }], "name": "safeTransferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "operator", "type": "address" }, { "internalType": "bool", "name": "approved", "type": "bool" }], "name": "setApprovalForAll", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "bytes4", "name": "interfaceId", "type": "bytes4" }], "name": "supportsInterface", "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "index", "type": "uint256" }], "name": "tokenByIndex", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "uint256", "name": "index", "type": "uint256" }], "name": "tokenOfOwnerByIndex", "outputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "name": "tokenURI", "outputs": [{ "internalType": "string", "name": "", "type": "string" }], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }], "stateMutability": "view", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "tokenId", "type": "uint256" }], "name": "transferFrom", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [{ "internalType": "address", "name": "newOwner", "type": "address" }], "name": "transferOwnership", "outputs": [], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "name": "withdraw", "outputs": [], "stateMutability": "nonpayable", "type": "function" }];
 
 const ERC721Assignment = () => {
   const { currentAccount, provider } = useContext(BlockchainContext);
@@ -19,7 +19,31 @@ const ERC721Assignment = () => {
      * 2. 取得目前 block (區塊) 中的 gas fee，並在建立 Contract 物件的時候帶入 gasLimit 參數
      * 參考資料: https://docs.ethers.io/v5/getting-started/#getting-started--contracts
      */
-  }, []);
+    console.log('123', currentAccount)
+    if (provider) {
+      const signer = provider.getSigner()
+
+      const _contract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        provider,
+      );
+      setContract(_contract.connect(signer));
+
+      // provider.getBlock().then((block) => {
+      //   const _contract = new ethers.Contract(
+      //     contractAddress,
+      //     contractABI,
+      //     provider,
+      //     // {
+      //     //   gasLimit: block.gasLimit,
+      //     // }
+      //   );
+      //   setContract(_contract.connect(signer));
+      // });
+      console.log(contract)
+    }
+  }, [provider]);
 
   const [totalSupply, setTotalSupply] = useState();
   useEffect(() => {
@@ -30,7 +54,15 @@ const ERC721Assignment = () => {
      * 如果寫成功，則 <div>目前 Mint 數量: {totalSupply}</div> 處就會顯示 totalSupply 的數值
      * 提示: 透過 ethers.js 取得的 counter 數值為 bigNumber，請想辦法轉換成數字或是字串
      */
-  }, []);
+    const getTotalSupply = async () => {
+      const _totalSupply = await contract.totalSupply()
+      setTotalSupply(_totalSupply.toNumber())
+    }
+
+    if (contract) {
+      getTotalSupply()
+    }
+  }, [contract]);
 
   const [mintPrice, setPrice] = useState();
   useEffect(() => {
@@ -44,9 +76,23 @@ const ERC721Assignment = () => {
      * 2. mintPrice 為 0.01 ether，由於 ether 的數值在智能合約是用 wei 來儲存，會是一個非常大的數字，無法用 js Number 來顯示，
      *    建議透過 ethers.utils.formatEther 來轉換 (會轉換為字串)
      */
-  }, []);
+    const getMintPrice = async () => {
+      const _mintPrice = await contract.mintPrice()
+      setPrice(utils.formatEther(_mintPrice))
+    }
+
+    if (contract) {
+      getMintPrice()
+    }
+  }, [contract]);
 
   const [accountBalance, setAccountBalance] = useState();
+
+  const getBalanceOf = async () => {
+    const _balanceOf = await contract.balanceOf(currentAccount)
+    setAccountBalance(_balanceOf.toNumber())
+  }
+
   useEffect(() => {
     /*
      * 請在此處判斷:
@@ -56,9 +102,14 @@ const ERC721Assignment = () => {
      * 如果寫成功，則 <div>我的錢包有的數量: {accountBalance}</div> 處就會顯示 accountBalance 的數值
      * 提示: 透過 ethers.js 取得的 counter 數值為 bigNumber，請想辦法轉換成數字或是字串
      */
-  }, []);
 
-  const onMint = () => {
+
+    if (contract && currentAccount) {
+      getBalanceOf()
+    }
+  }, [contract, currentAccount]);
+
+  const onMint = async () => {
     /*
      * 請在此處透過 contract 物件，向智能合約呼叫 mint 方法
      * 並且將目前錢包地址帶入
@@ -67,6 +118,15 @@ const ERC721Assignment = () => {
      *    建議透過 ethers.utils.formatEther 轉換為 gwei
      * 如果寫成功，則點擊 Mint 按鈕時，狐狸錢包會跳出交易資訊
      */
+
+    // eth 轉成 wei
+    const wei = utils.parseEther(mintPrice)
+
+    // 呼叫合約 mint
+    await contract.mint({
+      from: currentAccount,
+      value: wei
+    })
   };
 
   useEffect(() => {
@@ -78,7 +138,25 @@ const ERC721Assignment = () => {
      * 注意: 由於開發時頁面會重新刷新，會導致 setInterval 無法清除，因此請透過 useEffect 中的 return 清除 setInterval
      * 參考資料: https://developer.mozilla.org/zh-TW/docs/Web/API/setInterval
      */
-  }, []);
+    let interval
+
+    if (contract) {
+      interval = window.setInterval(async () => {
+        const _totalSupply = await contract.totalSupply()
+        setTotalSupply(_totalSupply.toNumber())
+
+        if (currentAccount) {
+          const _balanceOf = await contract.balanceOf(currentAccount)
+          setAccountBalance(_balanceOf.toNumber())
+        }
+      }, 1000)
+
+    }
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [contract, currentAccount]);
 
   return (
     <Layout>
@@ -96,6 +174,14 @@ const ERC721Assignment = () => {
         <div>
           <div>持有者列表:</div>
           <ul>
+            {
+              totalSupply > 0
+                ?
+                [...new Array(totalSupply)].map((item, i) => {
+                  return <OwnerListItem tokenId={i} key={i} contract={contract} />
+                })
+                : <div>無資料</div>
+            }
             {/* 
                 請在這裡透過 [...new Array(totalSupply)]，
                 來透過 map 迭代，
@@ -126,7 +212,15 @@ const OwnerListItem = ({ tokenId, contract }) => {
      * 並且儲存上方的 ownerAddress state 中
      * 如果寫成功，則 {ownerAddress} 處就會顯示 ownerAddress 的數值
      */
-  }, []);
+    const getOwnerOf = async () => {
+      const _ownerOf = await contract.ownerOf(tokenId)
+      setOwnerAddress(_ownerOf)
+    }
+
+    if (contract) {
+      getOwnerOf()
+    }
+  }, [contract]);
 
   return (
     <li>
